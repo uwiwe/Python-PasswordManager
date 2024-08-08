@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
+import json
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -31,18 +32,62 @@ def generate_password():
 
 
 def save():
+    website = website_input.get()
+    email = email_input.get()
+    password = password_input.get()
+
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
     if len(website_input.get()) == 0 or len(email_input.get()) == 0 or len(password_input.get()) == 0:
-        messagebox.showinfo(title="Error", message="Please don't leave any fields empty")
+        messagebox.showinfo(title="Error", message="Please don't leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title="Is it ok to save?", message=f"{website_input.get()} \nEmail/Username:"
-                                                                          f" {email_input.get()}\nPassword:"
-                                                                          f" {password_input.get()}\n\n")
+        is_ok = messagebox.askokcancel(title="Is it ok to save?", message=f"Website: {website}\n"
+                                                                          f"Email: {email}\n"
+                                                                          f"Password: {password}")
         if is_ok:
-            with open("passwords.txt", "a") as passwords:
-                passwords.write(f"{website_input.get()} \nEmail/Username: {email_input.get()}\nPassword: "
-                                f"{password_input.get()}\n\n")
+            try:
+                with open("data.json", "r") as data_file:
+                    # Reading old data
+                    data = json.load(data_file)
+
+            except FileNotFoundError:
+                # Creating a file in case it doesn't exist
+                with open("data.json", "w") as data_file:
+                    json.dump(new_data, data_file, indent=4)
+            else:
+                # Updating the old data
+                data.update(new_data)
+                with open("data.json", "w") as data_file:
+                    # Saving updated data
+                    json.dump(data, data_file, indent=4)
+            finally:
                 website_input.delete(0, END)
                 password_input.delete(0, END)
+
+
+# ---------------------------- SEARCH PASSWORD ------------------------------- #
+
+
+def search_password():
+    website = website_input.get()
+    try:
+        with open("data.json", "r") as data_file:
+            data = json.load(data_file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Error", message="No Data File Found!")
+    else:
+        if website in data:
+            email = data[website]['email']
+            password = data[website]['password']
+            messagebox.showinfo(title="Here is your password:", message=f"Website: {website}\n"
+                                                                        f"Email: {email}\n"
+                                                                        f"Password: {password}")
+        else:
+            messagebox.showinfo(title="Error", message="You don't have a stored password for this website!")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -68,8 +113,8 @@ password_label = Label(text="Password:")
 password_label.grid(column=0, row=3)
 
 # Entry
-website_input = Entry(width=52)
-website_input.grid(column=1, row=1, columnspan=2)
+website_input = Entry(width=33)
+website_input.grid(column=1, row=1)
 website_input.focus()
 
 email_input = Entry(width=52)
@@ -80,6 +125,9 @@ password_input = Entry(width=33)
 password_input.grid(column=1, row=3)
 
 # Button
+password_button = Button(text="Search", width=14, command=search_password)
+password_button.grid(column=2, row=1)
+
 password_button = Button(text="Generate Password", command=generate_password)
 password_button.grid(column=2, row=3)
 
