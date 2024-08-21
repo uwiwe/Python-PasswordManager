@@ -1,7 +1,7 @@
 {
     "Amazon": {
         "email": "example@gmail.com",
-        "password": "DMh1hR+!&9gfZj2G"
+        "password": "95b$uGkwy(Ggx"
     },
     "Google": {
         "email": "example@gmail.com",
@@ -10,5 +10,9 @@
     "Twitter": {
         "email": "example@gmail.com",
         "password": "bcN1XrZW3&4K2A%#U"
+    },
+    "Apple": {
+        "email": "example@gmail.com",
+        "password": "AIn0ZB5Ud#!DG"
     }
 }
